@@ -33,9 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Validate credentials
     if (empty($username_err) && empty($password_err)) {
-        // Debug information
-        echo "Attempting login for username: " . htmlspecialchars($username) . "<br>";
-        
         $sql = "SELECT user_id, username, password, role FROM users WHERE username = ? AND role = 'admin'";
         
         if ($stmt = mysqli_prepare($conn, $sql)) {
@@ -44,43 +41,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_stmt_execute($stmt)) {
                 mysqli_stmt_store_result($stmt);
                 
-                echo "Number of matching users: " . mysqli_stmt_num_rows($stmt) . "<br>";
-                
                 if (mysqli_stmt_num_rows($stmt) == 1) {
                     mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password, $role);
                     if (mysqli_stmt_fetch($stmt)) {
-                        echo "Found user with ID: " . $id . " and role: " . $role . "<br>";
-                        
                         if (password_verify($password, $hashed_password)) {
-                            echo "Password verified successfully.<br>";
-                            
-                            // Store data in session variables
                             $_SESSION["loggedin"] = true;
                             $_SESSION["user_id"] = $id;
                             $_SESSION["username"] = $username;
                             $_SESSION["role"] = $role;
                             
-                            echo "Session variables set:<br>";
-                            echo "loggedin: " . $_SESSION["loggedin"] . "<br>";
-                            echo "user_id: " . $_SESSION["user_id"] . "<br>";
-                            echo "username: " . $_SESSION["username"] . "<br>";
-                            echo "role: " . $_SESSION["role"] . "<br>";
-                            
-                            // Redirect to admin dashboard
                             header("location: admin/dashboard.php");
                             exit;
                         } else {
-                            echo "Password verification failed.<br>";
                             $login_err = "Invalid username or password.";
                         }
                     }
                 } else {
-                    echo "No matching admin user found.<br>";
                     $login_err = "Invalid username or password.";
                 }
             } else {
-                echo "Error executing statement: " . mysqli_error($conn) . "<br>";
-                echo "Oops! Something went wrong. Please try again later.";
+                $login_err = "Oops! Something went wrong. Please try again later.";
             }
 
             mysqli_stmt_close($stmt);

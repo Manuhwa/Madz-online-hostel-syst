@@ -17,7 +17,9 @@ include "includes/header.php";
 <div class="login-container">
     <div class="login-card">
         <div class="text-center mb-4">
-            <img src="images/logo.jpg" alt="College Logo" class="img-fluid mb-3" style="max-height: 100px;">
+            <?php if (file_exists(__DIR__ . "/images/logo.jpg")) { ?>
+                <img src="images/logo.jpg" alt="College Logo" class="img-fluid mb-3" style="max-height: 100px;">
+            <?php } ?>
             <h2>Login</h2>
         </div>
 
